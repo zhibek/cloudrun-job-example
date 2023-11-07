@@ -1,0 +1,35 @@
+steps:
+- id: 'Delete Container image'
+  name: 'gcr.io/cloud-builders/gcloud'
+  entrypoint: '/bin/bash'
+  args:
+    - '-c'
+    - |
+      gcloud container images describe \
+        ${_REGION}-docker.pkg.dev/${PROJECT_ID}/containers/${_JOB}:${_VERSION}
+
+      gcloud container images delete \
+        ${_REGION}-docker.pkg.dev/${PROJECT_ID}/containers/${_JOB}:${_VERSION} \
+        --quiet
+
+- id: 'Delete Cloud Run job'
+  name: 'gcr.io/cloud-builders/gcloud'
+  entrypoint: '/bin/bash'
+  args:
+    - '-c'
+    - |
+      gcloud run jobs describe \
+        ${_JOB} \
+        --project ${PROJECT_ID} \
+        --region ${_REGION}
+      
+      gcloud run jobs delete \
+        ${_JOB} \
+        --project ${PROJECT_ID} \
+        --region ${_REGION} \
+        --quiet
+
+substitutions:
+  _JOB: example-job
+  _VERSION: dev
+  _REGION: europe-west1

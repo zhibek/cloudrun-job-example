@@ -1,0 +1,29 @@
+steps: 
+- id: 'Build Container image'
+  name: 'gcr.io/cloud-builders/gcloud:latest'
+  entrypoint: /bin/bash
+  args:
+    - '-c'
+    - |
+      gcloud builds submit \
+        --tag ${_REGION}-docker.pkg.dev/${PROJECT_ID}/containers/${_JOB}:${_VERSION} \
+        .
+
+- id: 'Deploy to Cloud Run job'
+  name: 'gcr.io/cloud-builders/gcloud:latest'
+  entrypoint: /bin/bash
+  args:
+  - '-c'
+  - |
+    gcloud run jobs deploy \
+      ${_JOB} \
+      --image ${_REGION}-docker.pkg.dev/${PROJECT_ID}/containers/${_JOB}:${_VERSION} \
+      --project ${PROJECT_ID} \
+      --region ${_REGION} \
+      --tasks 1 \
+      --max-retries 0
+
+substitutions:
+  _JOB: example-job
+  _VERSION: dev
+  _REGION: europe-west1

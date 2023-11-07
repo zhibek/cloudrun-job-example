@@ -1,0 +1,15 @@
+steps: 
+- id: 'Run Cloud Run job'
+  name: 'gcr.io/cloud-builders/gcloud:latest'
+  entrypoint: /bin/bash
+  args:
+  - '-c'
+  - |
+    gcloud run jobs execute ${_JOB} \
+      --project ${PROJECT_ID} \
+      --region ${_REGION} \
+      --wait
+
+substitutions:
+  _JOB: example-job
+  _REGION: europe-west1
